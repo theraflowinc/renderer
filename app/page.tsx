@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 
 export default async function Page() {
@@ -18,11 +18,13 @@ export default async function Page() {
     );
   }
 
-  const { data: project } = await supabase
+  const { data: project } = await supabaseServer
     .from("projects")
     .select("*, workspaces(name)")
     .eq("slug", subdomain)
-    .single();
+    .eq("status", "live")
+    .limit(1)
+    .maybeSingle();
 
   if (!project) return notFound();
 
