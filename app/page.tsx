@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { supabaseServer } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import FunnelSegretarie from "./_templates/FunnelSegretarie";
+import DynamicPage from "./_components/DynamicPage";
 
 export default async function Page() {
   const headersList = await headers();
@@ -29,17 +30,39 @@ export default async function Page() {
 
   if (!project) return notFound();
 
-  // Template routing
+  // 1. Template hardcoded (blocchi pre-costruiti)
   if (project.template === "funnel-segretarie" || project.slug === "funnel-segretarie") {
     return <FunnelSegretarie projectId={project.id} />;
   }
 
-  // Placeholder generico
+  // 2. Pagina dinamica generata da Claude (home page = slug "/")
+  const { data: page } = await supabaseServer
+    .from("project_pages")
+    .select("*")
+    .eq("project_id", project.id)
+    .eq("slug", "/")
+    .eq("published", true)
+    .maybeSingle();
+
+  if (page) {
+    return <DynamicPage page={page} project={project} />;
+  }
+
+  // 3. Placeholder — nessuna pagina ancora
   return (
-    <main className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-6 py-20 text-center">
-        <h1 className="text-5xl font-bold mb-6">{project.name}</h1>
-        <p className="text-xl text-gray-500">{project.category}</p>
+    <main className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="text-center max-w-md px-6">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-100 to-indigo-100 flex items-center justify-center mx-auto mb-6">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M14 6L22 10V18L14 22L6 18V10L14 6Z" stroke="#6366f1" strokeWidth="1.5" strokeLinejoin="round"/>
+            <circle cx="14" cy="14" r="3" fill="#6366f1"/>
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">{project.name}</h1>
+        <p className="text-slate-400 text-sm">
+          Questo progetto è online ma non ha ancora una pagina pubblicata.
+          Parla con Claude nel tuo pannello per crearne una.
+        </p>
       </div>
     </main>
   );
