@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { supabaseServer } from "@/lib/supabase";
 import { notFound } from "next/navigation";
+import FunnelSegretarie from "./_templates/FunnelSegretarie";
 
 export default async function Page() {
   const headersList = await headers();
@@ -28,6 +29,12 @@ export default async function Page() {
 
   if (!project) return notFound();
 
+  // Template routing
+  if (project.template === "funnel-segretarie" || project.slug === "funnel-segretarie") {
+    return <FunnelSegretarie projectId={project.id} />;
+  }
+
+  // Placeholder generico
   return (
     <main className="min-h-screen">
       <div className="max-w-4xl mx-auto px-6 py-20 text-center">
