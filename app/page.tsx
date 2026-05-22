@@ -66,12 +66,14 @@ export default async function Page() {
 
   // 2. Progetto React → serve bundle da project_builds
   if ((project as any).framework === "react") {
+    // Sito pubblico → serve solo la build pubblicata (published_at IS NOT NULL)
     const { data: build } = await supabaseServer
       .from("project_builds")
       .select("bundle_js, bundle_css")
       .eq("project_id", project.id)
       .eq("status", "ready")
-      .order("created_at", { ascending: false })
+      .not("published_at", "is", null)
+      .order("published_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
