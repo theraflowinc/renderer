@@ -48,7 +48,10 @@ export async function middleware(request: NextRequest) {
   if (path.startsWith("/api/") || path.startsWith("/_next/") || path.includes(".")) {
     return NextResponse.next();
   }
-
+  if (host === "teacher-planner.theraflow.site") {
+    const newUrl = `https://www.teacherplanner.app${request.nextUrl.pathname}${request.nextUrl.search}`;
+    return NextResponse.redirect(newUrl, { status: 301 });
+  }
   const sb = createClient(SUPABASE_URL, SERVICE_KEY);
 
   const { data: project } = await sb
