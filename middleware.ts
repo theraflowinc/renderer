@@ -52,6 +52,17 @@ export async function middleware(request: NextRequest) {
     const newUrl = `https://www.teacherplanner.app${request.nextUrl.pathname}${request.nextUrl.search}`;
     return NextResponse.redirect(newUrl, { status: 301 });
   }
+      const isTheraflowHost = host.endsWith(".theraflow.site");
+    if (!isTheraflowHost) {
+      const sbCustom = createClient(SUPABASE_URL, SERVICE_KEY);
+      const { data: customProject } = await sbCustom
+        .from("projects")
+        .select("id, name, framework")
+        .eq("custom_domain", host)
+        .eq("framework", "react")
+        .maybeSingle();
+      if (customProject) return serveReactProject(sbCustom, customProject, request);
+    }
   const sb = createClient(SUPABASE_URL, SERVICE_KEY);
 
   const { data: project } = await sb
