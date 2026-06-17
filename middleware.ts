@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
         .eq("custom_domain", host)
         .eq("framework", "react")
         .maybeSingle();
-      if (customProject) return serveReactProject(sbCustom, customProject, request);
+      if (customProject) return serveReactProject(sbCustom, customProject as any, request);
     }
   const sb = createClient(SUPABASE_URL, SERVICE_KEY);
 
